@@ -2,8 +2,11 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define cracker 1
+#define coder 2
+
 /**
- * Borra los contenidos de la pantalla. Ejecuta `clear` o `cls` dependiendo del sistema operativo.\n\n
+ * Procedimiento que borra los contenidos de la pantalla. Ejecuta `clear` o `cls` dependiendo del sistema operativo.\n\n
  * Recuperado de https://stackoverflow.com/a/36253316/14916353
  */
 void clearScreen(){
@@ -17,7 +20,7 @@ void clearScreen(){
 }
 
 /**
- * Escribe el mensaje "Input any character to continue: " y espera la respuesta por teclado.
+ * Procedimiento que escribe el mensaje "Input any character to continue: " y espera la respuesta por teclado.
  * Útil para dar tiempo al usuario a ver un mensaje en la pantalla antes de borrarla y continuar el juego
  */
 void pressToContinue() {
@@ -26,6 +29,9 @@ void pressToContinue() {
     scanf("%s", dummy);
 }
 
+/**
+ * Procedimiento que muestra una ayuda básica que sirve en ambos modos para darse a una idea de cómo de ve el codigo a crear/adivinar
+ */
 void showValidPasswordRules() {
     clearScreen();
     printf(
@@ -41,6 +47,11 @@ void showValidPasswordRules() {
     pressToContinue();
 }
 
+/**
+ * Función que valida que el código ingresado por el jugador es válido, ya sea para adivinar o crear.
+ * @param secretCode: Apuntador a un char array que contiene el input con un código del juego.
+ * @return 1 para indicar que el código es válida y 0 para indicar que no lo es.
+ */
 short validSecretCode(const char* secretCode) {
     char pins[] = {'*', '+', '&', '%', '#', '@'};
 
@@ -69,41 +80,84 @@ short validSecretCode(const char* secretCode) {
 
 }
 
-short getPlayerNumberFromString(const char* playerNumber) {
-    switch (playerNumber[0]) {
-        case '1': return 1;
-        case '2': return 2;
-    }
+/**
+ * Analiza un string para comprobar si el usuario eligió que desea el modo cracker o coder
+ * @param gameMode: Apuntador a un char array que contiene el input con el modo de juego.
+ * @return cracker (1) para indicar que el modo de juego es de cracker o coder (0).
+ */
+short getPlayerNumberFromString(const char* gameMode) {
+    if (!strcmp(gameMode, "crack")) return cracker;
+    else if (!strcmp(gameMode, "code")) return coder;
+    else return 0;
+}
+
+/**
+ * Función para validar que el string ingresado por el ususario para indicar el modo de juego sea de tamaño 4 o 5,
+ * si no es del tamaño esperado no vale la pena buscar si es igual a cracker o coder
+ * @param gameMode: Apuntador a un char array que contiene el input con el modo de juego.
+ * @return 1 para indicar que es válido y 0 para indicar que no lo es
+ */
+short validGameModeInputSize(const char* gameMode) {
+    size_t string_len = strlen(gameMode);
+    if (string_len == 5 || string_len == 4) return 1;
     return 0;
 }
 
-short validPlayerNumber(const char* playerNumber) {
-    size_t string_len = strlen(playerNumber);
-
-    if (string_len == 1 && (playerNumber[0] == '1' || playerNumber[0] == '2'))
-        return getPlayerNumberFromString(playerNumber);
-
-    return 0;
-
-}
-
+/**
+ * Función que verifica si el tamaño del string ingresado por el usuario es del tamaño esperado,
+ * si lo es entonces busca en dicho strong si el usuario eligió coder o cracker.\n
+ * Si no lo es muestra un mensaje de error-ayuda
+ * @param playerNumber
+ * @return
+ */
 short parsePlayerNumberString(const char* playerNumber) {
-    if (validPlayerNumber(playerNumber))
+
+    if (validGameModeInputSize(playerNumber))
         return getPlayerNumberFromString(playerNumber);
     else
-        printf("Error, you need to input '1' or '2' to indicate which player will crack the code.\n");
+        puts("Error, you need to input 'crack' or 'code'.");
 
     return 0;
 }
+
+/**
+ * Ejecuta todos los procedimientos del modo cracker
+ */
+void crackerMode() {
+    char guessCode[600];
+
+    puts("Hint: Write 'help' to display some tips to crack the code.");
+    do {
+        printf("Player, input your guess [e.g. '****']: ");
+        scanf("%s", guessCode);
+    } while (!validSecretCode((const char *) &guessCode));
+}
+
+/**
+ * Ejecuta todos los procedimientos del modo coder
+ */
+void coderMode() {
+    char secretCode[600];
+
+    puts("Hint: Write 'help' to display some tips to formulate the code.");
+    do {
+        printf("Player, input the secret code [e.g. '****']: ");
+        scanf("%s", secretCode);
+    } while (!validSecretCode((const char *) &secretCode));
+
+    printf("Ok, the secret code is: %s \n"
+           "You should write it down or memorize it ;)\n",
+           secretCode );
+}
+
 
 int main() {
 
     // Reservamos espacio de sobra para poder ingresar strings grandes evitando segmentation faults
-    char secretCode[600];
-    char guessCode[600];
-    char crackerPlayer[600];
-    short cracker;
-    short coder;
+
+
+    char gameMode[600];
+    short gameModeSelected;
 
     clearScreen();
     puts("Welcome to MasterMinds");
@@ -111,36 +165,18 @@ int main() {
 
     printf("Alright, lets start. ");
     do {
-        printf("Which player is cracking the code? [1|2]: ");
-        scanf("%s", crackerPlayer);
-        cracker = parsePlayerNumberString(crackerPlayer);
-    } while (!cracker);
+        printf("Do you want to crack or code? [crack|code]: ");
+        scanf("%s", gameMode);
+        gameModeSelected = parsePlayerNumberString(gameMode);
+    } while (!gameModeSelected);
 
-    coder = cracker == 1 ? 2 : 1;
-    printf("Good, player %hi will crack and player %hi will code.\n" , cracker, coder);
-
-    pressToContinue();
-    clearScreen();
-
-    puts("Hint: Write 'help' to display some tips to formulate the code.");
-    do {
-        printf("Player %hi, input the secret code [e.g. '****']: ", coder);
-        scanf("%s", secretCode);
-    } while (!validSecretCode((const char *) &secretCode));
-
-    printf("Ok, the secret code is: %s \n"
-           "You should write it down or memorize it ;)\n",
-           secretCode );
-
-
-    pressToContinue();
-    clearScreen();
-
-    puts("Hint: Write 'help' to display some tips to crack the code.");
-    do {
-        printf("Player %hi, input your guess [e.g. '****']: ", cracker);
-        scanf("%s", guessCode);
-    } while (!validSecretCode((const char *) &guessCode));
+    if (gameModeSelected == cracker) {
+        puts("Good, you will crack the code the AI will make.");
+        crackerMode();
+    } else {
+        puts("Good, you will code and the AI will try to guess.");
+        coderMode();
+    }
 
     return 0;
 }
