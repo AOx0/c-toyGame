@@ -30,7 +30,7 @@ void pressToContinue() {
 }
 
 /**
- * Procedimiento que muestra una ayuda básica que sirve en ambos modos para darse a una idea de cómo de ve el codigo a crear/adivinar
+ * Procedimiento que muestra una ayuda básica que sirve en ambos modos para darse a una idea de cómo de ve el código a crear/adivinar
  */
 void showValidPasswordRules() {
     clearScreen();
@@ -92,7 +92,7 @@ short getPlayerNumberFromString(const char* gameMode) {
 }
 
 /**
- * Función para validar que el string ingresado por el ususario para indicar el modo de juego sea de tamaño 4 o 5,
+ * Función para validar que el string ingresado por el usuario para indicar el modo de juego sea de tamaño 4 o 5,
  * si no es del tamaño esperado no vale la pena buscar si es igual a cracker o coder
  * @param gameMode: Apuntador a un char array que contiene el input con el modo de juego.
  * @return 1 para indicar que es válido y 0 para indicar que no lo es
@@ -154,8 +154,6 @@ void coderMode() {
 int main() {
 
     // Reservamos espacio de sobra para poder ingresar strings grandes evitando segmentation faults
-
-
     char gameMode[600];
     short gameModeSelected;
 
